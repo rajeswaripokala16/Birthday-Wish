@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Birthday Cake</title>
+  <style>
+    body {
+      background: radial-gradient(circle at top, #222 0, #000 60%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      overflow: hidden;
+      color: #fff;
+      background-image: url("https://img.freepik.com/premium-photo/colorful-background-with-balloons-words-happy-birthday_1064589-191426.jpg?semt=ais_hybrid&w=740&q=80");
+      background-size: cover;
+    }
+
+    /* Music button */
+    .music-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.6);
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(6px);
+      transition: background 0.2s, transform 0.1s;
+      z-index: 10;
+    }
+
+    .music-btn:hover {
+      background: rgba(255,255,255,0.08);
+      transform: translateY(-1px);
+    }
+
+    .music-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ff4d6a;
+      box-shadow: 0 0 8px rgba(255,77,106,0.8);
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+
+    .music-dot.playing {
+      background: #4dff88;
+      box-shadow: 0 0 10px rgba(77,255,136,0.9);
+    }
+
+    /* Cake */
+    .cake {
+      width: 220px;
+      height: 120px;
+      background: #6b3e26;
+      border-radius: 10px;
+      position: relative;
+      display: none;
+      animation: fadeIn 1s ease-in-out forwards;
+    }
+
+    .cake::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 30px;
+      background: #fff5e1;
+      border-radius: 0 0 50% 50%;
+    }
+
+    .layer {
+      width: 100%;
+      height: 30px;
+      background: #6b3e26;
+      margin-top: 20px;
+      border-radius: 10px;
+      position: relative;
+    }
+
+    .layer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 10px;
+      background: #fff5e1;
+      border-radius: 0 0 50% 50%;
+    }
+
+    /* Candles */
+    .candle {
+      width: 10px;
+      height: 40px;
+      background: white;
+      position: absolute;
+      top: -40px;
+      border-radius: 3px;
+    }
+
+    .candle::after {
+      content: '';
+      width: 8px;
+      height: 12px;
+      background: gray; /* unlit wick */
+      border-radius: 50%;
+      position: absolute;
+      top: -12px;
+      left: 1px;
+    }
+
+    .candle.lit::after {
+      background: orange;
+      animation: flicker 0.2s infinite alternate;
+    }
+
+    .candle:nth-child(1) { left: 50px; }
+    .candle:nth-child(2) { left: 105px; }
+    .candle:nth-child(3) { left: 160px; }
+
+    @keyframes flicker {
+      from { transform: scaleY(1); opacity: 0.9; }
+      to { transform: scaleY(1.3); opacity: 0.6; }
+    }
+
+    /* Fade in */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    /* Text */
+    h1 {
+      color: white;
+      margin-top: 20px;
+      font-size: 28px;
+      text-align: center;
+    }
+
+    #message {
+      margin-top: 10px;
+      font-size: 18px;
+      text-align: center;
+      min-height: 24px;
+      letter-spacing: 1px;
+    }
+
+    /* Heart */
+    .heart {
+      width: 100px;
+      height: 90px;
+      position: relative;
+      margin-top: 20px;
+      animation: pulse 1s infinite;
+      cursor: pointer;
+    }
+
+    .heart::before,
+    .heart::after {
+      content: "";
+      position: absolute;
+      width: 50px;
+      height: 80px;
+      border-radius: 50px 50px 0 0;
+      background: red;
+      top: 0;
+    }
+
+    .heart::before {
+      left: 50px;
+      transform: rotate(-45deg);
+      transform-origin: 0 100%;
+    }
+
+    .heart::after {
+      left: 0;
+      transform: rotate(45deg);
+      transform-origin: 100% 100%;
+    }
+
+    @keyframes pulse {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    /* Confetti */
+    .confetti {
+      position: fixed;
+      top: -10px;
+      width: 8px;
+      height: 12px;
+      background: gold;
+      opacity: 0.9;
+      animation: fall 3s linear forwards;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    @keyframes fall {
+      0%   { transform: translateY(0) rotate(0deg); }
+      100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Music -->
+  <audio id="bg-music" loop>
+    <!-- replace with your own song -->
+    <source src="happy-birthday-254480.mp3" type="audio/mpeg">
+  </audio>
+
+  <button class="music-btn" id="music-toggle">
+    <span class="music-dot" id="music-dot"></span>
+    <span id="music-label">Play Music</span>
+  </button>
+
+  <!-- Cake -->
+  <div class="cake" id="cake">
+    <div class="candle"></div>
+    <div class="candle"></div>
+    <div class="candle"></div>
+    <div class="layer"></div>
+    <div class="layer"></div>
+    <div class="layer"></div>
+  </div>
+
+  <!-- Text -->
+  <h1>Happy Birthday Donika</h1>
+  <div id="message"></div>
+
+  <!-- Heart -->
+  <div class="heart" id="heart"></div>
+
+  <script>
+    const heart = document.getElementById("heart");
+    const cake = document.getElementById("cake");
+    const messageEl = document.getElementById("message");
+
+    const music = document.getElementById("bg-music");
+    const musicToggle = document.getElementById("music-toggle");
+    const musicDot = document.getElementById("music-dot");
+    const musicLabel = document.getElementById("music-label");
+    let musicPlaying = false;
+
+    // Music button
+    musicToggle.addEventListener("click", () => {
+      if (!musicPlaying) {
+        music.play();
+        musicPlaying = true;
+        musicDot.classList.add("playing");
+        musicLabel.textContent = "Pause Music";
+      } else {
+        music.pause();
+        musicPlaying = false;
+        musicDot.classList.remove("playing");
+        musicLabel.textContent = "Play Music";
+      }
+    });
+
+    // Heart click: show cake, light candles, type message, confetti
+    heart.addEventListener("click", function() {
+      // Show cake
+      cake.style.display = "block";
+
+      // Light candles
+      setTimeout(() => {
+        const candles = document.querySelectorAll(".candle");
+        candles.forEach(c => c.classList.add("lit"));
+      }, 800);
+
+      // Typewriter message
+      const text = "May your day be filled with joy, Stay Blessed and lots of Happiness! 🎂";
+      messageEl.textContent = "";
+      let i = 0;
+      const typing = setInterval(() => {
+        messageEl.textContent += text.charAt(i);
+        i++;
+        if (i >= text.length) clearInterval(typing);
+      }, 40);
+
+      // Confetti burst
+      for (let j = 0; j < 80; j++) {
+        setTimeout(createConfetti, j * 20);
+      }
+    });
+
+    // Simple confetti
+    function createConfetti() {
+      const conf = document.createElement("div");
+      conf.className = "confetti";
+      const colors = ["#ff6b6b", "#feca57", "#1dd1a1", "#54a0ff", "#f368e0"];
+      conf.style.left = Math.random() * 100 + "vw";
+      conf.style.background = colors[Math.floor(Math.random() * colors.length)];
+      conf.style.animationDuration = (Math.random() * 1.5 + 2) + "s";
+      document.body.appendChild(conf);
+      setTimeout(() => conf.remove(), 4000);
+    }
+  </script>
+</body>
+</html>
